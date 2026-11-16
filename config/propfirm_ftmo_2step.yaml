@@ -1,0 +1,83 @@
+# Paraphrased in the project's own words for simulation. NOT an official source, NOT an FTMO certification, and no
+# statement of eligibility, endorsement or affiliation. The firm can change its rules at any time.
+# FTMO 2-Step: rules as READ from ftmo.com on 2026-11-15. This file describes the rules of an
+# EXTERNAL firm for SIMULATION and compliance checking only. It never changes HARD_LIMITS
+# (src/xauscalp/config.py) nor any risk limit of this project: our limits stay stricter.
+# Every value carries its provenance; anything not on an official page is listed under
+# `unverified` and must be checked on the firm's platform/contract BEFORE relying on it.
+# The firm can change these rules at any time: re-read the pages before any decision.
+
+firm: FTMO
+program: 2-Step
+retrieved: 2026-11-15
+sources:
+  trading_objectives: https://ftmo.com/en/trading-objectives/
+  how_it_works: https://ftmo.com/en/how-it-works/
+  comparison_table: https://ftmo.com/en/comparison-table/
+  news_rule: https://ftmo.com/en/faq/can-i-trade-news/
+  strategies_eas: https://ftmo.com/en/faq/which-instruments-can-i-trade-and-what-strategies-am-i-allowed-to-use/
+  forbidden_practices: https://ftmo.com/en/forbidden-trading-practices/
+  fees: https://ftmo.com/en/faq/what-fees-do-you-charge-and-are-they-recurrent/
+  refund: https://ftmo.com/en/faq/is-the-entry-fee-refunded/
+  rewards: https://ftmo.com/en/faq/how-do-i-withdraw-my-profits/
+  account_specs: https://ftmo.com/en/faq/what-are-the-account-specifications/
+  free_trial: https://ftmo.com/en/faq/do-you-offer-a-free-trial/
+
+rules:
+  account_sizes: [10000, 25000, 50000, 100000, 200000]     # simulated capital, how_it_works
+  phases:
+    challenge:    {profit_target_pct: 10.0, min_trading_days: 4}
+    verification: {profit_target_pct: 5.0,  min_trading_days: 4}
+    funded:       {profit_target_pct: null, min_trading_days: 0}
+  time_limit_days: null                  # no time limit (comparison_table)
+  max_daily_loss_pct: 5.0                # of INITIAL capital; the daily floor is the balance at the start of the Prague day minus 5 %
+  max_loss_pct: 10.0                     # STATIC: initial capital minus 10 %
+  daily_reset_tz: Europe/Prague          # midnight, Central European time
+  loss_basis: equity                     # balance + open P/L +- swaps - commissions (floating counts)
+  target_requires_all_positions_closed: true
+  trading_day_definition: day with at least one position OPENED (00:00-23:59:59 CE(S)T)
+  news_restriction:                      # news_rule page
+    window_min: 2                        # 2 min before and after selected releases
+    applies_to_phases: [funded]          # NOT applied in Challenge / Verification per the FAQ
+    covers_sl_tp_and_pending: true
+    usd_events_affect: [XAUUSD]          # USD rate decisions, jobs/wages, GDP, FOMC minutes, CPI
+  max_open_orders: 200                   # strategies_eas page
+  max_requests_per_day: 2000             # EA activity limit (forbidden_practices: > 2,000 requests/day)
+  ea_allowed: true                       # automated strategies are allowed; they must be replicable on live accounts
+  platform_server_time: GMT+2 with DST   # account_specs (MT4/MT5)
+
+forbidden_practices_summary:             # forbidden_practices page; consequences include losing rewards
+  - gap trading: opening trades around major news / economic data, or within 2 h of a >= 2 h market close
+  - offsetting positions on the same or related instruments to smooth results
+  - unrealistic risk-taking: excessive leverage or exposure, all-in bets, chaining accounts
+  - excessive EA activity (> 2,000 server requests/day) and unfair-advantage tools / HFT-like behaviour
+  - exploiting wrong prices / delayed feeds (latency-type abuse)
+  - position sizes or counts that differ a lot from the trader's other trades (poor risk management)
+
+economics:
+  fee_eur_2step:                         # ILLUSTRATIVE entry prices, not an official price list: they may be outdated or
+    10000: 89                            # promotional. Used only to size the simulation, never as a claim.
+    25000: 250
+    50000: 345
+    100000: 439
+    200000: 1080
+  fee_recurrent: false
+  fee_refunded_on_first_reward_withdrawal: true      # 2-Step only (refund page)
+  reward_ratio_default: 0.80
+  reward_ratio_with_scaling: 0.90
+  first_withdrawal_from_day: 14          # after the first trade (rewards page)
+  min_payout_usd: 20
+
+free_trial:                              # free_trial FAQ
+  duration: "Sources disagree (no limit vs 14 days): verify before relying on it"
+  max_size_usd: 200000
+  counts_toward_challenge: false         # it is not a qualification step
+  uses_objectives_of: challenge          # with unlisted adjustments
+
+unverified:
+  - XAUUSD contract size, minimum lot, lot step, spreads, commissions and swaps on FTMO's MT5 server
+  - leverage per asset class (only a 1:100 maximum for the standard account is stated)
+  - whether the Free Trial lasts 14 days or has no limit, and its adjusted profit target
+  - the exact checkout price of each 2-Step size
+  - the full list of restricted events in the platform's economic calendar
+  - Scaling Plan conditions

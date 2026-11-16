@@ -1,0 +1,9 @@
+
+
+MQL5\Experts\XauScalp_ReadOnly.mq5 : information: compiling MQL5\Experts\XauScalp_ReadOnly.mq5
+MQL5\Experts\XauScalp_ReadOnly.mq5 : information: including C:\Program Files\MetaTrader 5\MQL5\Include\XauScalp\TimeUtil.mqh
+MQL5\Experts\XauScalp_ReadOnly.mq5 : information: including C:\Program Files\MetaTrader 5\MQL5\Include\XauScalp\OrbSignal.mqh
+MQL5\Experts\XauScalp_ReadOnly.mq5 : information: including C:\Program Files\MetaTrader 5\MQL5\Include\XauScalp\RiskGuard.mqh
+MQL5\Experts\XauScalp_ReadOnly.mq5 : information: including C:\Program Files\MetaTrader 5\MQL5\Include\XauScalp\Logger.mqh
+ : information: code generated
+Result: 0 errors, 0 warnings, 1130 ms elapsed, cpu='X64 Regular'

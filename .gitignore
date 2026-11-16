@@ -1,0 +1,35 @@
+# --- secrets: NEVER commit ---
+.env
+*.env
+!.env.example
+config/LIVE_AUTHORIZATION*
+config/*.local.yaml
+secrets/
+
+# --- data & generated artifacts ---
+data/*
+!data/README.md
+reports/**/*.parquet
+*.parquet
+
+# --- python ---
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# --- MT5 build outputs ---
+*.ex5
+*.ex4
+
+# --- OS/editor ---
+.DS_Store
+.idea/
+.vscode/
+
+# large regenerable research outputs
+reports/*_day_records.csv

@@ -1,0 +1,73 @@
+# Default configuration. Values here are conservative on purpose.
+# Secrets NEVER go here: use .env (see .env.example). LIVE has its own, separately
+# authorised file and is disabled in code during development (see src/xauscalp/modes.py).
+
+mode: RESEARCH          # RESEARCH | DEMO | LIVE   (LIVE is hard-disabled in this phase)
+
+symbol:
+  # Research placeholders. They MUST be replaced with the real values produced by
+  # mt5/Scripts/XAU_FeasibilityReport.mq5 on your broker before any DEMO run.
+  name: XAUUSD
+  contract_size: 100.0     # oz per 1.00 lot (typical CFD; broker-specific)
+  volume_min: 0.01
+  volume_step: 0.01
+  volume_max: 50.0
+  profit_currency: USD
+
+account:
+  currency: EUR
+  leverage: 20             # ESMA retail cap for gold CFDs is 20:1 (verify with your broker)
+
+risk:
+  risk_per_trade_pct: 0.5
+  daily_loss_limit_pct: 2.0
+  weekly_loss_limit_pct: 5.0
+  max_drawdown_pct: 8.0          # from peak equity; blocks new trades until manual reset
+  max_open_positions: 1
+  max_trades_per_day: 3
+  max_spread_usd: 0.60           # reject entries when ask-bid exceeds this (price units)
+  max_data_age_s: 10             # reject when last tick is older than this
+  max_consecutive_errors: 3      # pause trading after N consecutive execution errors
+  expected_slippage_usd: 0.10    # added to SL distance when sizing (stops can slip!)
+  commission_per_lot: 0.0        # round turn, account currency (broker-specific)
+  max_margin_usage_pct: 30.0     # never use more than this % of free margin
+
+costs:                    # backtest cost model (price units, USD per oz)
+  extra_spread_usd: 0.15   # added on top of Dukascopy spread to approximate a retail broker
+  slippage_usd: 0.05       # adverse slippage per market fill (entry, SL, time exit)
+  commission_per_lot_usd: 0.0
+
+data:
+  source: dukascopy
+  symbol: XAUUSD
+  start: 2021-01-01
+  end: 2026-10-31
+  dir: data
+
+validation:
+  # Lockbox: nothing on/after this date may be used for research, tuning or selection.
+  # Opening it is a one-time, logged event (see backtest/splits.py).
+  holdout_start: 2025-11-01
+  wf_train_months: 12
+  wf_test_months: 3
+  min_train_trades: 30
+  min_fold_coverage: 0.90   # share of usable trading days required in train AND test
+  min_valid_folds: 4        # fewer usable folds -> study declared NOT VALIDATABLE
+  bootstrap_samples: 5000
+  random_benchmark_runs: 500
+  seed: 20261112
+
+strategy:
+  orb:
+    # Pre-registered BEFORE looking at results. Grid kept deliberately small.
+    sessions:
+      london: {tz: Europe/London, open: "08:00"}
+      newyork: {tz: America/New_York, open: "08:20"}   # COMEX gold open
+    entry_window_min: 60
+    max_hold_min: 90
+    buffer_atr: 0.10
+    max_cost_frac: 0.20     # skip if (spread + 2*slippage) > 20% of SL distance
+    grid:
+      or_minutes: [15, 30]
+      sl_atr: [1.0, 1.5, 2.0]
+      tp_r: [1.0, 1.5, 2.0]
